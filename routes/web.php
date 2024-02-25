@@ -9,6 +9,11 @@ use App\Http\Controllers\KategoriCustomerController;
 use App\Http\Controllers\KategoriObatController;
 use App\Http\Controllers\TerapiObatController;
 use App\Http\Controllers\SatuanController;
+use App\Http\Controllers\LokasiController;
+use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\KaryawanController;
+use App\Http\Controllers\MetodePembayaranController;
+use App\Http\Controllers\DataObatController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -80,3 +85,65 @@ Route::get('/satuan/form/{id}', [SatuanController::class,'Satuan_Form'])->name('
 Route::post('/satuan/store', [SatuanController::class, 'store'])->name('satuan-store')->middleware('auth');
 Route::post('/satuan/edit', [SatuanController::class, 'edit'])->name('satuan-edit')->middleware('auth');
 Route::delete('/satuan/delete/{id}', [SatuanController::class, 'satuan_delete'])->name('satuan-delete')->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| Lokasi Rak
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/lokasi', [LokasiController::class,'LokasiView'])->name('lokasi')->middleware('auth');
+Route::get('/lokasi/form/{id}', [LokasiController::class,'Lokasi_Form'])->name('lokasi-form')->middleware('auth');
+Route::post('/lokasi/store', [LokasiController::class, 'store'])->name('lokasi-store')->middleware('auth');
+Route::post('/lokasi/edit', [LokasiController::class, 'edit'])->name('lokasi-edit')->middleware('auth');
+Route::delete('/lokasi/delete/{id}', [LokasiController::class, 'lokasi_delete'])->name('lokasi-delete')->middleware('auth');
+
+
+/*
+|--------------------------------------------------------------------------
+| Shift
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/shift', [ShiftController::class,'ShiftView'])->name('shift')->middleware('auth');
+Route::get('/shift/form/{id}', [ShiftController::class,'Shift_Form'])->name('shift-form')->middleware('auth');
+Route::post('/shift/store', [ShiftController::class, 'store'])->name('shift-store')->middleware('auth');
+Route::post('/shift/edit', [ShiftController::class, 'edit'])->name('shift-edit')->middleware('auth');
+Route::delete('/shift/delete/{id}', [ShiftController::class, 'shift_delete'])->name('shift-delete')->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| Karyawan
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/karyawan', [KaryawanController::class,'KaryawanView'])->name('karyawan')->middleware('auth');
+Route::get('/karyawan/form/{id}', [KaryawanController::class,'Karyawan_Form'])->name('karyawan-form')->middleware('auth');
+Route::post('/karyawan/store', [KaryawanController::class, 'store'])->name('karyawan-store')->middleware('auth');
+Route::post('/karyawan/edit', [KaryawanController::class, 'edit'])->name('karyawan-edit')->middleware('auth');
+Route::delete('/karyawan/delete/{id}', [KaryawanController::class, 'Karyawan_delete'])->name('karyawan-delete')->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| Metode Pembayaran
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/metodepembayaran', [MetodePembayaranController::class,'MetodePembayaranView'])->name('metodepembayaran')->middleware('auth');
+Route::get('/metodepembayaran/form/{id}', [MetodePembayaranController::class,'MetodePembayaran_Form'])->name('metodepembayaran-form')->middleware('auth');
+Route::post('/metodepembayaran/store', [MetodePembayaranController::class, 'store'])->name('metodepembayaran-store')->middleware('auth');
+Route::post('/metodepembayaran/edit', [MetodePembayaranController::class, 'edit'])->name('metodepembayaran-edit')->middleware('auth');
+Route::delete('/metodepembayaran/delete/{id}', [MetodePembayaranController::class, 'MetodePembayaran_delete'])->name('metodepembayaran-delete')->middleware('auth');
+
+
+/*
+|--------------------------------------------------------------------------
+| Data Obat
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/dataobat', [DataObatController::class,'DataObatView'])->name('dataobat')->middleware('auth');
+Route::get('/dataobat/form/{id}', [DataObatController::class,'DataObat_Form'])->name('dataobat-form')->middleware('auth');
+Route::post('/dataobat/store', [DataObatController::class, 'store'])->name('dataobat-store')->middleware('auth');
+Route::post('/dataobat/edit', [DataObatController::class, 'edit'])->name('dataobat-edit')->middleware('auth');
+Route::delete('/dataobat/delete/{id}', [DataObatController::class, 'DataObat_delete'])->name('dataobat-delete')->middleware('auth');

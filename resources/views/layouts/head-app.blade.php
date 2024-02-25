@@ -45,7 +45,7 @@
 									</li>
 								@else
 									<li>
-							            <a href="#">
+							            <a href="{{ route($items['Link']) }}">
 							                <i class="{{$items['Icon']}}"></i> {{$items['PermissionName']}}
 							            </a>
 							        </li>

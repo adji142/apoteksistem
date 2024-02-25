@@ -21,7 +21,7 @@ class SatuanController extends Controller
                     for ($i = 0; $i < count($field); $i++){
                         $query->orwhere($field[$i], 'like',  '%' . $keyword .'%');
                     }      
-                });
+                })->where('RecordOwnerID','=',Auth::user()->RecordOwnerID);
 
         $satuan = $satuan->paginate(4);
 
@@ -87,6 +87,7 @@ class SatuanController extends Controller
              //    $model->Nama = $request->input('Nama');
                 $update = DB::table('satuan')
                 			->where('Kode','=', $request->input('Kode'))
+                            ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
                 			->update(['Nama'=>$request->input('Nama')]);
 
                 if ($update) {
@@ -108,7 +109,10 @@ class SatuanController extends Controller
 
     public function satuan_delete(Request $request)
     {
-        $user = DB::table('satuan')->where('Kode','=', $request->id)->delete();
+        $user = DB::table('satuan')
+                ->where('Kode','=', $request->id)
+                ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
+                ->delete();
 
         if ($user) {
         	alert()->success('Success','Delete Satuan Obat berhasil.');

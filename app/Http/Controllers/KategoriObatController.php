@@ -22,7 +22,7 @@ class KategoriObatController extends Controller
                     for ($i = 0; $i < count($field); $i++){
                         $query->orwhere($field[$i], 'like',  '%' . $keyword .'%');
                     }      
-                });
+                })->where('RecordOwnerID','=',Auth::user()->RecordOwnerID);
 
         $kategori = $kategori->paginate(4);
 

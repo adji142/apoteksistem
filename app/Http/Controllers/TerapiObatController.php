@@ -21,7 +21,7 @@ class TerapiObatController extends Controller
                     for ($i = 0; $i < count($field); $i++){
                         $query->orwhere($field[$i], 'like',  '%' . $keyword .'%');
                     }      
-                });
+                })->where('RecordOwnerID','=',Auth::user()->RecordOwnerID);
 
         $terapi = $terapi->paginate(4);
 
