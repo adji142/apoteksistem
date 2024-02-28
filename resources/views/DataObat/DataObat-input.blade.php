@@ -67,7 +67,12 @@
                                                 <select class="form-control filter-input" name="KodeKelompok">
                                                     <option value="">Pilih Kelompok</option>
                                                     @foreach($kelompokobat as $ko)
-                                                        <option value="{{ $ko['id'] }}">{{ $ko['Nama'] }}</option>
+                                                        <option 
+                                                            value="{{ $ko['id'] }}"
+                                                            {{ count($dataobat) > 0 ? $dataobat[0]['KodeKelompok'] == $ko['id'] ? 'selected' : '' : '' }}
+                                                        >
+                                                            {{ $ko['Nama'] }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -78,7 +83,13 @@
                                                 <select class="form-control filter-input" name="KodeSatuan">
                                                     <option value="">Pilih Satuan</option>
                                                     @foreach($satuan as $sat)
-                                                        <option value="{{ $sat['Kode'] }}">{{ $sat['Nama'] }}</option>
+                                                        <option 
+                                                            value="{{ $sat['Kode'] }}"
+                                                            {{ count($dataobat) > 0 ? $dataobat[0]['KodeSatuan'] == $sat['Kode'] ? 'selected' : '' : '' }}
+                                                        >
+
+                                                            {{ $sat['Nama'] }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -89,7 +100,12 @@
                                                 <select class="form-control filter-input" name="LokasiRakObat">
                                                     <option value="">Pilih Lokasi Rak</option>
                                                     @foreach($lokasirak as $rak)
-                                                        <option value="{{ $rak['Kode'] }}">{{ $rak['Nama'] }}</option>
+                                                        <option 
+                                                            value="{{ $rak['Kode'] }}"
+                                                            {{ count($dataobat) > 0 ? $dataobat[0]['LokasiRakObat'] == $rak['Kode'] ? 'selected' : '' : '' }}
+                                                        >
+                                                            {{ $rak['Nama'] }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -119,8 +135,8 @@
                                             <div class="form-group">
                                                 <label>Status</label>
                                                 <select class="form-control filter-input" name="Active" style="display: none;">
-                                                    <option value="Y" {{ count($dataobat) > 0 ? $dataobat[0][Status] == 'Y' ? "selected" :"" : ""}}>Active</option>
-                                                    <option value="N" {{ count($dataobat) >0 ? $dataobat[0][Status] == 'N' ? "selected" :"" : ""}}>Non Active</option>
+                                                    <option value="Y" {{ count($dataobat) > 0 ? $dataobat[0]['Active'] == 'Y' ? "selected" :"" : ""}}>Active</option>
+                                                    <option value="N" {{ count($dataobat) >0 ? $dataobat[0]['Active'] == 'N' ? "selected" :"" : ""}}>Non Active</option>
                                                 </select>
                                             </div>
                                         </div>

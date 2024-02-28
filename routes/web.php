@@ -14,6 +14,9 @@ use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\MetodePembayaranController;
 use App\Http\Controllers\DataObatController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\PembelianController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -30,6 +33,7 @@ Route::post('/action-login', [LoginController::class, 'action_login'])->name('ac
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard')->middleware('auth');
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
+Route::post('/validate', [LoginController::class, 'ValidateCompany'])->name('validate');
 // Master
 Route::get('/setting', [CompanySettingController::class, 'companysetting'])->name('setting')->middleware('auth');
 Route::post('/setting/store', [CompanySettingController::class, 'setting_store'])->name('setting-store')->middleware('auth');
@@ -143,7 +147,49 @@ Route::delete('/metodepembayaran/delete/{id}', [MetodePembayaranController::clas
 |
 */
 Route::get('/dataobat', [DataObatController::class,'DataObatView'])->name('dataobat')->middleware('auth');
+Route::post('/databatch', [DataObatController::class,'DataBatch_View'])->name('databatch')->middleware('auth');
 Route::get('/dataobat/form/{id}', [DataObatController::class,'DataObat_Form'])->name('dataobat-form')->middleware('auth');
+Route::get('/dataobat/detail/{id}', [DataObatController::class,'DataObat_Detail'])->name('dataobat-detail')->middleware('auth');
 Route::post('/dataobat/store', [DataObatController::class, 'store'])->name('dataobat-store')->middleware('auth');
 Route::post('/dataobat/edit', [DataObatController::class, 'edit'])->name('dataobat-edit')->middleware('auth');
 Route::delete('/dataobat/delete/{id}', [DataObatController::class, 'DataObat_delete'])->name('dataobat-delete')->middleware('auth');
+Route::post('/dataobat/obatLookup', [DataObatController::class, 'obatLookup'])->name('obatLookup')->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| Supplier
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/supplier', [SupplierController::class,'SupplierView'])->name('supplier')->middleware('auth');
+Route::get('/supplier/form/{id}', [SupplierController::class,'Supplier_Form'])->name('supplier-form')->middleware('auth');
+Route::post('/supplier/store', [SupplierController::class, 'store'])->name('supplier-store')->middleware('auth');
+Route::post('/supplier/edit', [SupplierController::class, 'edit'])->name('supplier-edit')->middleware('auth');
+Route::delete('/supplier/delete/{id}', [SupplierController::class, 'Supplier_delete'])->name('supplier-delete')->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| Customer
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/customer', [CustomerController::class,'CustomerView'])->name('customer')->middleware('auth');
+Route::get('/customer/form/{id}', [CustomerController::class,'Customer_Form'])->name('customer-form')->middleware('auth');
+Route::post('/customer/store', [CustomerController::class, 'store'])->name('customer-store')->middleware('auth');
+Route::post('/customer/edit', [CustomerController::class, 'edit'])->name('customer-edit')->middleware('auth');
+Route::delete('/customer/delete/{id}', [CustomerController::class, 'Customer_delete'])->name('customer-delete')->middleware('auth');
+
+
+/*
+|--------------------------------------------------------------------------
+| Pembelian
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/pembelian', [PembelianController::class,'PembelianView'])->name('pembelian')->middleware('auth');
+Route::post('/pembelian/getheader', [PembelianController::class,'PembelianHeaderShow'])->name('getheader')->middleware('auth');
+Route::post('/pembelian/getdetail', [PembelianController::class,'PembelianDetailShow'])->name('getdetail')->middleware('auth');
+Route::post('/pembelian/store', [PembelianController::class, 'store'])->name('pembelian-store')->middleware('auth');
+Route::post('/pembelian/edit', [PembelianController::class, 'edit'])->name('pembelian-edit')->middleware('auth');
+Route::get('/pembelian/form/{id}', [PembelianController::class,'Pembelian_Form'])->name('pembelian-form')->middleware('auth');
+Route::post('/pembelian/store', [PembelianController::class, 'store'])->name('pembelian-store')->middleware('auth');

@@ -157,7 +157,7 @@
 
 	    <!--Scripts starts-->
 	    <!--plugin js-->
-	    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 	    <script src="{{ asset('js/plugin.js') }}"></script>
 	    <!--Perfect Scrollbar JS-->
 	    <script src="{{ asset('js/perfect-scrollbar.min.js') }}"></script>
@@ -166,7 +166,20 @@
 	    <!-- Dashboard JS-->
 	    <script src="{{ asset('js/dashboard.js') }}"></script>
 	    <!--Scripts ends-->
+	    <!-- DevExtreme theme -->
+	    <link rel="stylesheet" type="text/css" href="{{ asset('devexpress/dx.common.css') }}" />
+	    <link rel="stylesheet" type="text/css" href="{{ asset('devexpress/dx.light.css') }}" />
+	    <script src="{{ asset('devexpress/jszip.min.js') }}"></script>
+	    <script src=" {{asset('devexpress/dx.all.js')}}"></script>
+
+	    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.2.5/css/dx.common.css" />
+		<link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.2.5/css/dx.light.css" />
+		
+	    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
 	    @include('sweetalert::alert')
+
+	    @stack('scripts')
 	</body>
 
 </html>

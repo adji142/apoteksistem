@@ -30,7 +30,7 @@
             <div class="col-xl-3 col-md-6 col-12">
                 <div class="statistic__item item--green">
                     <h2 class="counter-value"></h2>
-                    <span class="desc">Published Listings</span>
+                    <span class="desc">Total Penjualan</span>
                     <div class="icon">
                         <img src="images/dashboard/map-of-roads.png" alt="...">
                     </div>
@@ -39,7 +39,7 @@
             <div class="col-xl-3 col-md-6 col-12">
                 <div class="statistic__item item--orange">
                     <h2 class="counter-value"></h2>
-                    <span class="desc">Total Reviews</span>
+                    <span class="desc">Total Pembelian</span>
                     <div class="icon">
                         <img src="images/dashboard/review.png" alt="...">
                     </div>
@@ -57,7 +57,7 @@
             <div class="col-xl-3 col-md-6 col-12">
                 <div class="statistic__item item--red">
                     <h2 class="counter-value"></h2>
-                    <span class="desc">Total Booking</span>
+                    <span class="desc">Jumlah Stock Expired</span>
                     <div class="icon">
                         <img src="images/dashboard/like.png" alt="...">
                     </div>

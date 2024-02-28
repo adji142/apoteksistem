@@ -91,6 +91,89 @@ class DataObatController extends Controller
         ]);
     }
 
+    public function DataObat_Detail($id = 0)
+    {
+        return view("DataObat.DataObat-detail",[
+            'KodeItem' => $id,
+        ]);
+    }
+
+    public function DataBatch_View(Request $request)
+    {
+
+        $data = array('success'=>false, 'message'=>'', 'data'=>array());
+        $SQL = "batchnumber.BatchNumber, batchnumber.KodeItem,'' Supplier, batchnumber.RecordOwnerID, batchnumber.ExpiredDate, SUM(Qty) as Stock";
+        // 1 PBF
+        // 2 Tampil Stock
+        // 3 Kriteria
+
+        $field = ['batchnumber.BatchNumber'];
+
+        $stockBatch = DB::table('batchnumber')
+                        ->selectRaw($SQL)
+                        ->where('KodeItem','=',$request->input('KodeItem'))
+                        ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
+                        ->groupBy('batchnumber.BatchNumber','batchnumber.KodeItem','batchnumber.RecordOwnerID','batchnumber.ExpiredDate');
+
+        if ($request->input('Stock') == "0") {
+            $stockBatch->havingRaw('SUM(Qty) > 0');
+        }
+
+        $stockBatch->orderBy('batchnumber.ExpiredDate','desc');
+
+        if ($stockBatch->count() > 0) {
+            $data['success'] = true;
+            $data['data'] = $stockBatch->get();
+        }
+        
+
+        return response()->json($data);
+
+    }
+
+    public function obatLookup(Request $request)
+    {
+        $data = array('success'=>true, 'message'=>'', 'data'=>array());
+
+        $sql = "databarang.KodeItem, ".
+                "databarang.NamaItem, ".
+                "kategoriobat.Nama      AS 'Kelompok', ".
+                "stk.Stock, ".
+                "databarang.KodeSatuan, ".
+                "satuan.Nama            AS 'Satuan', ".
+                "databarang.HargaJual, ".
+                "lokasi.Nama            AS LokasiRak, ".
+                "COALESCE(databarang.HargaPokok,0) LastPrice";
+
+        $dataobat = DataObat::selectRaw($sql)
+                    ->leftJoin('kategoriobat', function ($value){
+                        $value->on('databarang.KodeKelompok','=','kategoriobat.id')
+                                ->on('databarang.RecordOwnerID','=','kategoriobat.RecordOwnerID');
+                    })
+                    ->leftJoin('satuan', function ($value){
+                        $value->on('databarang.KodeSatuan','=','satuan.Kode')
+                                ->on('databarang.RecordOwnerID','=','satuan.RecordOwnerID');
+                    })
+                    ->leftJoin('lokasi', function ($value){
+                        $value->on('databarang.LokasiRakObat','=','lokasi.Kode')
+                                ->on('databarang.RecordOwnerID','=','lokasi.RecordOwnerID');
+                    })
+                    ->leftJoinSub(
+                        DB::table('itemwarehouse')
+                            ->select('itemwarehouse.KodeItem','itemwarehouse.RecordOwnerID', DB::raw('SUM(Qty) as Stock'))
+                            ->groupBy('itemwarehouse.KodeItem','itemwarehouse.RecordOwnerID'),
+                        'stk',
+                        function ($value){
+                            $value->on('stk.KodeItem','=','databarang.KodeItem')
+                                    ->on('stk.RecordOwnerID','=','databarang.RecordOwnerID');
+                    })
+                    ->where('databarang.RecordOwnerID','=',Auth::user()->RecordOwnerID)
+                    ->where('databarang.Active','=','Y');
+
+        $data['data'] = $dataobat->get();
+        return response()->json($data);
+    }
+
     public function store(Request $request)
     {
     	Log::debug($request->all());
@@ -149,7 +232,7 @@ class DataObatController extends Controller
             if ($model) {
             	// $model->Kode = $request->input('Kode');
              //    $model->Nama = $request->input('Nama');
-                $update = DB::table('dataobat')
+                $update = DB::table('databarang')
                 			->where('KodeItem','=', $request->input('KodeItem'))
                             ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
                 			->update([

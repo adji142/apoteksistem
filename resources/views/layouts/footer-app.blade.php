@@ -25,6 +25,9 @@
 	    <!-- Dashboard JS-->
 	    <script src="{{ asset('js/dashboard.js') }}"></script>
 	    <!--Scripts ends-->
+	    <!-- DevExtreme theme -->
+	    
+	    
 	    @include('sweetalert::alert')
 	</body>
 

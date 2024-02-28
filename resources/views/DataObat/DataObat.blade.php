@@ -85,6 +85,7 @@
                                         <th>Satuan</th>
                                         <th>Harga Jual</th>
                                         <th>Lokasi Rak</th>
+                                        <th>Alert</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -97,12 +98,13 @@
                                         <td>{{ $v['Satuan'] }}</td>
                                         <td>{{ number_format($v['HargaJual']) }}</td>
                                         <td>{{ $v['LokasiRak'] }}</td>
+                                        <td></td>
                                         
                                         
                                         <td>
                                             <a href="{{ url('dataobat/form/' . $v['KodeItem']) }}" class="btn btn-primary" data-toggle="tooltip" title="Edit Data Obat"> <i class="ion-ios-eye-outline"></i> Edit</a>
 
-                                            <a href="#" class="btn btn-warning" data-toggle="tooltip" title="Detail"> <i class="ion-ios-eye-outline"></i> Edit</a>
+                                            <a href="{{ url('dataobat/detail/' . $v['KodeItem']) }}" class="btn btn-warning" data-toggle="tooltip" title="Detail"> <i class="ion-ios-eye-outline"></i> Detail</a>
                                         </td>
                                     </tr>
                                     @endforeach

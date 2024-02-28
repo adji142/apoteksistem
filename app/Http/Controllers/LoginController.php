@@ -163,4 +163,30 @@ class LoginController extends Controller
         Auth::logout();
         return redirect('/');
     }
+
+    public function ValidateCompany(Request $request)
+    {
+        $url = 'http://register.aissystem.org/home/verifyCompany';
+
+        $postData = [
+            // 'KodePartner' => $request->input('KodePartner')
+            'KodePartner' => 'CL0001'
+            // Add more parameters as needed
+        ];
+
+        $response = Http::post($url, $postData);
+
+        if ($response->successful()) {
+            // API request was successful, retrieve response data
+            $responseData = $response->json();
+            // Process the response data
+            return $responseData;
+        } else {
+            // API request failed, handle the error
+            $statusCode = $response->status();
+            $errorMessage = $response->body();
+            // Handle the error as needed
+            return response()->json(['error' => $errorMessage], $statusCode);
+        }
+    }
 }
