@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class BatchNumber extends Model
 {
     use HasFactory;
+    protected $table = 'batchnumber';
 }

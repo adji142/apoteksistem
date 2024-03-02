@@ -11,11 +11,11 @@
                         <div class="breadcrumb-menu text-right sm-left">
                             <ul>
                                 <li class="active"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                                <li class="active"><a href="{{ route('pembelian') }}">Pembelian</a></li>
+                                <li class="active"><a href="{{ route('penjualan') }}">Penjualan</a></li>
                             </ul>
                         </div>
                     </div>
-                    <a class="btn v3" href="{{ url('pembelian/form/0') }}"><i class="ion-plus-round"></i>Tambah Pembelian </a>
+                    <a class="btn v3" href="{{ url('penjualan/form/0') }}"><i class="ion-plus-round"></i>Tambah Penjualan </a>
                 </div>
             </div>
         </div>
@@ -28,7 +28,7 @@
             <div class="col-md-12">
                 <div class="invoice-panel">
                     <div class="act-title">
-                        <h5><i class="ion-ios-people"></i> Pembelian</h5>
+                        <h5><i class="ion-ios-people"></i> Penjualan</h5>
                     </div>
                     <div class="invoice-body">
                         <div class="row">
@@ -41,16 +41,16 @@
                                         <input type="date" class="form-control filter-input" name="TglAkhir" id="TglAkhir">
                                     </div>
                                     <div class="col-lg-4 col-md-12">
-                                        <select class="form-control filter-input" name="Supplier" id="Supplier">
-                                            <option value="">Semua Supplier / PBF</option>
-                                            @foreach($supplier as $sp)
-                                                <option value="{{ $sp['id'] }}">{{ $sp['NamaSupplier'] }}</option>
+                                        <select class="form-control filter-input" name="Customer" id="Customer">
+                                            <option value="">Semua Customer</option>
+                                            @foreach($customer as $sp)
+                                                <option value="{{ $sp['id'] }}">{{ $sp['NamaCustomer'] }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="col-lg-2 col-md-12">
                                         <div class="submit_btn text-right md-left">
-                                            <button class="btn v3  mar-right-5 form-control filter-input" id="SearchPembelian"><i class="ion-ios-search" aria-hidden="true"></i> Cari</button>
+                                            <button class="btn v3  mar-right-5 form-control filter-input" id="SearchPenjualan"><i class="ion-ios-search" aria-hidden="true"></i> Cari</button>
                                         </div>
                                     </div>
                                 </div>
@@ -99,12 +99,12 @@
                 <div>
                     <div class="row">
                         <div class="col-md-12">
-                            <form action="{{route('pembelian-bayar')}}" method="post">
+                            <form action="{{route('penjualan-bayar')}}" method="post">
                                 @csrf
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label>Nomor Pembelian</label>
-                                        <input type="text" class="form-control filter-input" name="NoTransaksi" id="NoTransaksi" placeholder="Nomor Pembelian" >
+                                        <label>Nomor Penjualan</label>
+                                        <input type="text" class="form-control filter-input" name="NoTransaksi" id="NoTransaksi" placeholder="Nomor Penjualan" >
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -167,7 +167,7 @@
             getDetail('');
         });
 
-        $('#SearchPembelian').click(function () {
+        $('#SearchPenjualan').click(function () {
             getHeader();
             getDetail('');
         })
@@ -180,7 +180,7 @@
                 data    : {
                             'TglAwal'   : $('#TglAwal').val(),
                             'TglAkhir'  : $('#TglAkhir').val(),
-                            'Supplier'  : $('#Supplier').val(),
+                            'Customer'  : $('#Customer').val(),
                             '_token': '{{ csrf_token() }}',
                         },
                 dataType: "json",
@@ -247,13 +247,8 @@
                         allowEditing:false,
                     },
                     {
-                        dataField: "NamaSupplier",
-                        caption: "Supplier",
-                        allowEditing:false,
-                    },
-                    {
-                        dataField: "NoRef",
-                        caption: "No. Reff",
+                        dataField: "NamaCustomer",
+                        caption: "Customer",
                         allowEditing:false,
                     },
                     {
@@ -286,7 +281,7 @@
                         allowEditing:false,
                         cellTemplate: function(cellElement, cellInfo) {
                             var id = cellInfo.data.NoTransaksi;
-                            var route = "pembelian/cancel/" +cellInfo.data.NoTransaksi
+                            var route = "penjualan/cancel/" +cellInfo.data.NoTransaksi
                             var status = cellInfo.data.StatusTRX;
                             var statusbayar = cellInfo.data.StatusBayar;
 

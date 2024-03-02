@@ -17,6 +17,7 @@ use App\Http\Controllers\DataObatController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PembelianController;
+use App\Http\Controllers\PenjualanController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -37,7 +38,7 @@ Route::post('/validate', [LoginController::class, 'ValidateCompany'])->name('val
 // Master
 Route::get('/setting', [CompanySettingController::class, 'companysetting'])->name('setting')->middleware('auth');
 Route::post('/setting/store', [CompanySettingController::class, 'setting_store'])->name('setting-store')->middleware('auth');
-
+Route::get('/genpass/{pass}', [LoginController::class,'register'])->name('register');
 // Route::get('/kategoricustomer', [KategoriCustomerController::class, 'KategoriCustomer'])->name('kategoricustomer')->middleware('auth');
 // Route::post('/kategoricustomer-read', [KategoriCustomerController::class, 'Read'])->name('kategoricustomer-read');
 
@@ -154,6 +155,8 @@ Route::post('/dataobat/store', [DataObatController::class, 'store'])->name('data
 Route::post('/dataobat/edit', [DataObatController::class, 'edit'])->name('dataobat-edit')->middleware('auth');
 Route::delete('/dataobat/delete/{id}', [DataObatController::class, 'DataObat_delete'])->name('dataobat-delete')->middleware('auth');
 Route::post('/dataobat/obatLookup', [DataObatController::class, 'obatLookup'])->name('obatLookup')->middleware('auth');
+Route::post('/dataobat/batchLookup', [DataObatController::class, 'lookupBatch'])->name('batchLookup')->middleware('auth');
+Route::post('/dataobat/getstockcard', [DataObatController::class, 'StockCard'])->name('getstockcard')->middleware('auth');
 
 /*
 |--------------------------------------------------------------------------
@@ -189,7 +192,27 @@ Route::delete('/customer/delete/{id}', [CustomerController::class, 'Customer_del
 Route::get('/pembelian', [PembelianController::class,'PembelianView'])->name('pembelian')->middleware('auth');
 Route::post('/pembelian/getheader', [PembelianController::class,'PembelianHeaderShow'])->name('getheader')->middleware('auth');
 Route::post('/pembelian/getdetail', [PembelianController::class,'PembelianDetailShow'])->name('getdetail')->middleware('auth');
+Route::post('/pembelian/getreport', [PembelianController::class,'PembelianReport'])->name('getreport')->middleware('auth');
 Route::post('/pembelian/store', [PembelianController::class, 'store'])->name('pembelian-store')->middleware('auth');
 Route::post('/pembelian/edit', [PembelianController::class, 'edit'])->name('pembelian-edit')->middleware('auth');
 Route::get('/pembelian/form/{id}', [PembelianController::class,'Pembelian_Form'])->name('pembelian-form')->middleware('auth');
 Route::post('/pembelian/store', [PembelianController::class, 'store'])->name('pembelian-store')->middleware('auth');
+Route::delete('/pembelian/cancel/{id}', [PembelianController::class,'CancelDocument'])->name('pembelian-cancel')->middleware('auth'); 	
+Route::post('/pembelian/bayar', [PembelianController::class, 'Bayar'])->name('pembelian-bayar')->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| Penjualan
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/penjualan', [PenjualanController::class,'PenjualanView'])->name('penjualan')->middleware('auth');
+Route::post('/penjualan/getheader', [PenjualanController::class,'PenjualanHeaderShow'])->name('getheader')->middleware('auth');
+Route::post('/penjualan/getdetail', [PenjualanController::class,'PenjualanDetailShow'])->name('getdetail')->middleware('auth');
+Route::post('/penjualan/getreport', [PenjualanController::class,'PenjualanReport'])->name('getreportpenjualan')->middleware('auth');
+Route::post('/penjualan/store', [PenjualanController::class, 'store'])->name('penjualan-store')->middleware('auth');
+Route::post('/penjualan/edit', [PenjualanController::class, 'edit'])->name('penjualan-edit')->middleware('auth');
+Route::get('/penjualan/form/{id}', [PenjualanController::class,'Penjualan_Form'])->name('penjualan-form')->middleware('auth');
+Route::post('/penjualan/store', [PenjualanController::class, 'store'])->name('penjualan-store')->middleware('auth');
+Route::delete('/penjualan/cancel/{id}', [PenjualanController::class,'CancelDocument'])->name('penjualan-cancel')->middleware('auth'); 	
+Route::post('/penjualan/bayar', [PenjualanController::class, 'Bayar'])->name('penjualan-bayar')->middleware('auth');

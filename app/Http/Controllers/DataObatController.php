@@ -12,6 +12,7 @@ use App\Models\DataObat;
 use App\Models\KategoriObat;
 use App\Models\Lokasi;
 use App\Models\Satuan;
+use App\Models\BatchNumber;
 
 class DataObatController extends Controller
 {
@@ -102,7 +103,7 @@ class DataObatController extends Controller
     {
 
         $data = array('success'=>false, 'message'=>'', 'data'=>array());
-        $SQL = "batchnumber.BatchNumber, batchnumber.KodeItem,'' Supplier, batchnumber.RecordOwnerID, batchnumber.ExpiredDate, SUM(Qty) as Stock";
+        $SQL = "batchnumber.BatchNumber, batchnumber.KodeItem, batchnumber.RecordOwnerID, batchnumber.ExpiredDate, SUM(Qty) as Stock";
         // 1 PBF
         // 2 Tampil Stock
         // 3 Kriteria
@@ -111,8 +112,20 @@ class DataObatController extends Controller
 
         $stockBatch = DB::table('batchnumber')
                         ->selectRaw($SQL)
-                        ->where('KodeItem','=',$request->input('KodeItem'))
-                        ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
+                        // ->leftJoinSub(
+                        //     DB::table('pembelianheader')
+                        //         ->selectRaw('DISTINCT pembelianheader.RecordOwnerID, pembelianheader.NoTransaksi, supplier.NamaSupplier')
+                        //         ->leftJoin('supplier', function ($value){
+                        //             $value->on('supplier.id','=','pembelianheader.KodeVendor')
+                        //             ->on('supplier.RecordOwnerID','=','pembelianheader.RecordOwnerID');
+                        //         }),
+                        //     'pbf',
+                        //     function ($value){
+                        //         $value->on('pbf.NoTransaksi','=','batchnumber.BaseRef')
+                        //                 ->on('pbf.RecordOwnerID','=','batchnumber.RecordOwnerID');
+                        // })
+                        ->where('batchnumber.KodeItem','=',$request->input('KodeItem'))
+                        ->where('batchnumber.RecordOwnerID','=',Auth::user()->RecordOwnerID)
                         ->groupBy('batchnumber.BatchNumber','batchnumber.KodeItem','batchnumber.RecordOwnerID','batchnumber.ExpiredDate');
 
         if ($request->input('Stock') == "0") {
@@ -174,6 +187,26 @@ class DataObatController extends Controller
         return response()->json($data);
     }
 
+    public function lookupBatch(Request $request)
+    {
+        $data = array('success'=>true, 'message'=>'', 'data'=>array());
+
+        $Kriteria = $request->input('kriteria');
+        $sql = "batchnumber.BatchNumber, batchnumber.ExpiredDate, databarang.KodeItem, databarang.NamaItem,databarang.HargaJual,databarang.KodeSatuan, SUM(batchnumber.Qty) AS Stock ";
+
+        $dataBatch = BatchNumber::selectRaw($sql)
+                    ->leftJoin('databarang', function ($value){
+                        $value->on('databarang.KodeItem','=','batchnumber.KodeItem')
+                                ->on('databarang.RecordOwnerID','=','batchnumber.RecordOwnerID');
+                    })
+                    ->where('databarang.RecordOwnerID','=',Auth::user()->RecordOwnerID)
+                    ->where('databarang.Active','=','Y')
+                    ->whereRaw("CONCAT(databarang.KodeItem,' ', databarang.NamaItem, ' ', batchnumber.BatchNumber) like '%".$Kriteria."%'" )
+                    ->groupBy('batchnumber.BatchNumber', 'batchnumber.ExpiredDate', 'databarang.KodeItem', 'databarang.NamaItem','databarang.HargaJual','databarang.KodeSatuan');
+        $data['data'] = $dataBatch->get();
+        return response()->json($data);
+    }
+
     public function store(Request $request)
     {
     	Log::debug($request->all());
@@ -213,6 +246,18 @@ class DataObatController extends Controller
             alert()->error('Error',$e->getMessage());
             return redirect()->back();
         }
+    }
+
+    public function StockCard(Request $request)
+    {
+        $data = array('success'=>true, 'message'=>'', 'data'=>array());
+
+        $query = DB::select('CALL rsp_laporan_kartu_stock(?,?,?,?)', array($request->input('TglAwal'), $request->input('TglAkhir'), $request->input('KodeItem'), Auth::user()->RecordOwnerID ));
+
+        $data['success'] = true;
+        $data['data'] = $query;
+
+        return response()->json($data);
     }
 
     public function edit(Request $request)

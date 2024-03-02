@@ -11,6 +11,8 @@ use Log;
 use App\Models\Supplier;
 use App\Models\PembelianHeader;
 use App\Models\PembelianDetail;
+use App\Models\DataPembayaran;
+use App\Models\MetodePembayaran;
 
 class PembelianController extends Controller
 {
@@ -19,8 +21,15 @@ class PembelianController extends Controller
 
     	$supplier = Supplier::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
     				->where('Active','=',1)->get();
+        $metode = MetodePembayaran::where('RecordOwnerID','=',Auth::user()->RecordOwnerID)->get();
+
+        $title = 'Cancel Dokumen Pembelian !';
+        $text = "Are you sure you want to delete ?";
+        confirmDelete($title, $text);
+
         return view("transaksi.pembelian.pembelian",[
-        	'supplier' => $supplier
+        	'supplier' => $supplier,
+            'metode' =>$metode
        	]);
     }
 
@@ -33,13 +42,27 @@ class PembelianController extends Controller
     	$Supplier = $request->input('Supplier');
     	$RecordOwnerID = Auth::user()->RecordOwnerID;
 
-    	$sql ="pembelianheader.NoTransaksi, pembelianheader.TglTransaksi, pembelianheader.TglJatuhTempo, supplier.NamaSupplier, pembelianheader.NoRef, CASE WHEN pembelianheader.StatusTRX = 'O' THEN 'OPEN' ELSE CASE WHEN pembelianheader.StatusTRX ='C' THEN 'CLOSE' ELSE CASE WHEN pembelianheader.StatusTRX = 'N' THEN 'CANCEL' ELSE '' END END END AS StatusTRX";
+    	$sql ="pembelianheader.NoTransaksi, pembelianheader.TglTransaksi, pembelianheader.TglJatuhTempo, supplier.NamaSupplier, pembelianheader.NoRef, CASE WHEN pembelianheader.StatusTRX = 'O' THEN 'OPEN' ELSE CASE WHEN pembelianheader.StatusTRX ='C' THEN 'CLOSE' ELSE CASE WHEN pembelianheader.StatusTRX = 'N' THEN 'CANCEL' ELSE '' END END END AS StatusTRX, pembelianheader.DocTotal, CASE WHEN pembelianheader.DocTotal <= COALESCE(stk.Total,0) THEN 'LUNAS' ELSE 'BELUM LUNAS' END AS StatusBayar, pembelianheader.DocTotal, COALESCE(stk.Total,0) as Pembayaran ";
     	$header = PembelianHeader::selectRaw($sql)
     				->leftJoin('supplier', function ($value)
     				{
     					$value->on('pembelianheader.RecordOwnerID','=','supplier.RecordOwnerID')
     					->on('pembelianheader.KodeVendor','=','supplier.id');
     				})
+                    ->leftJoinSub(
+                        DB::table('datapembayaran')
+                            ->selectRaw("datapembayaran.NoTransaksi,datapembayaran.RecordOwnerID,group_concat(datapembayaran.NoReffPembayaran) NoReff, group_concat(metodepembayaran.NamaMetodePembayaran) MetodePembayaran, SUM(datapembayaran.TotalPembayaran) Total")
+                            ->leftJoin('metodepembayaran', function ($value)
+                            {
+                                $value->on('metodepembayaran.id','=','datapembayaran.KodeMetodePembayaran')
+                                ->on('metodepembayaran.RecordOwnerID','=','datapembayaran.RecordOwnerID');
+                            })
+                            ->groupBy('datapembayaran.NoTransaksi','datapembayaran.RecordOwnerID'),
+                        'stk',
+                        function ($value){
+                            $value->on('stk.NoTransaksi','=','pembelianheader.NoTransaksi')
+                                    ->on('stk.RecordOwnerID','=','pembelianheader.RecordOwnerID');
+                    })
                     ->whereBetween('TglTransaksi',[$TglAwal, $TglAkhir])
     				->where('pembelianheader.RecordOwnerID','=', Auth::user()->RecordOwnerID);
 
@@ -76,6 +99,59 @@ class PembelianController extends Controller
                 ->where('pembeliandetail.RecordOwnerID','=', $RecordOwnerID)
                 ->orderBy('pembeliandetail.LineNumber','ASC');
         $data['data'] = $detail->get();
+
+        return response()->json($data);
+    }
+
+
+    public function PembelianReport(Request $request)
+    {
+        $data = array('success' => true, 'message'=>'', 'data' => array());
+
+        $TglAwal = $request->input('TglAwal');
+        $TglAkhir = $request->input('TglAkhir');
+        $Supplier = $request->input('Supplier');
+        $KodeItem = $request->input('KodeItem');
+        $RecordOwnerID = Auth::user()->RecordOwnerID;
+
+        $sql ="pembelianheader.NoTransaksi, pembelianheader.TglTransaksi, pembelianheader.TglJatuhTempo, supplier.NamaSupplier, pembelianheader.NoRef, CASE WHEN pembelianheader.StatusTRX = 'O' THEN 'OPEN' ELSE CASE WHEN pembelianheader.StatusTRX ='C' THEN 'CLOSE' ELSE CASE WHEN pembelianheader.StatusTRX = 'N' THEN 'CANCEL' ELSE '' END END END AS StatusTRX, pembelianheader.DocTotal, CASE WHEN pembelianheader.DocTotal <= COALESCE(stk.Total,0) THEN 'LUNAS' ELSE 'BELUM LUNAS' END AS StatusBayar, pembelianheader.DocTotal, COALESCE(stk.Total,0) as Pembayaran ";
+        $header = PembelianHeader::selectRaw($sql)
+                    ->leftJoin('supplier', function ($value)
+                    {
+                        $value->on('pembelianheader.RecordOwnerID','=','supplier.RecordOwnerID')
+                        ->on('pembelianheader.KodeVendor','=','supplier.id');
+                    })
+                    ->leftJoinSub(
+                        DB::table('datapembayaran')
+                            ->selectRaw("datapembayaran.NoTransaksi,datapembayaran.RecordOwnerID,group_concat(datapembayaran.NoReffPembayaran) NoReff, group_concat(metodepembayaran.NamaMetodePembayaran) MetodePembayaran, SUM(datapembayaran.TotalPembayaran) Total")
+                            ->leftJoin('metodepembayaran', function ($value)
+                            {
+                                $value->on('metodepembayaran.id','=','datapembayaran.KodeMetodePembayaran')
+                                ->on('metodepembayaran.RecordOwnerID','=','datapembayaran.RecordOwnerID');
+                            })
+                            ->groupBy('datapembayaran.NoTransaksi','datapembayaran.RecordOwnerID'),
+                        'stk',
+                        function ($value){
+                            $value->on('stk.NoTransaksi','=','pembelianheader.NoTransaksi')
+                                    ->on('stk.RecordOwnerID','=','pembelianheader.RecordOwnerID');
+                    })
+                    ->leftJoin('pembeliandetail', function ($value)
+                    {
+                        $value->on('pembeliandetail.NoTransaksi','=','pembelianheader.NoTransaksi')
+                        ->on('pembeliandetail.RecordOwnerID','=','pembelianheader.RecordOwnerID');
+                    })
+                    ->whereBetween('TglTransaksi',[$TglAwal, $TglAkhir])
+                    ->where('pembelianheader.RecordOwnerID','=', Auth::user()->RecordOwnerID);
+
+        if ($Supplier != "") {
+            $header->where('pembelianheader.KodeVendor','=', $Supplier);
+        }
+        if ($KodeItem != "") {
+            $header->where('pembeliandetail.KodeItem','=', $KodeItem);
+        }
+        $header->orderBy('pembelianheader.TglTransaksi', 'DESC');
+
+        $data['data'] = $header->get();
 
         return response()->json($data);
     }
@@ -186,8 +262,75 @@ class PembelianController extends Controller
 
         return response()->json($data);
     }
-    public function edit(Request $request)
+    public function Bayar(Request $request)
     {
-        # code...
+        Log::debug($request->all());
+        try {
+            $this->validate($request, [
+                'KodeMetodePembayaran'=>'required',
+                'NoTransaksi'=>'required',
+                'TotalPembayaran'=>'required',
+            ]);
+
+            $model = new DataPembayaran;
+            $model->KodeMetodePembayaran = $request->input('KodeMetodePembayaran');
+            $model->NoTransaksi = $request->input('NoTransaksi');
+            $model->NoReffPembayaran = $request->input('NoReffPembayaran');
+            $model->TglPembayaran = $request->input('TglPembayaran');
+            $model->TotalPembayaran = $request->input('TotalPembayaran');
+            $model->RecordOwnerID = Auth::user()->RecordOwnerID;
+
+            $save = $model->save();
+
+            if ($save) {
+                alert()->success('Success','Nomor Pembelian '.$request->input('NoTransaksi').' berhasil dibayarkan');
+                return redirect('pembelian');
+                
+            }else{
+                throw new \Exception('Pembayaran Gagal');
+            }
+
+
+        } catch (\Exception $e) {
+            Log::debug($e->getMessage());
+
+            alert()->error('Error',$e->getMessage());
+            return redirect('pembelian');
+        }
+    }
+
+    public function CancelDocument($id = 0)
+    {
+        // $lokasi = Lokasi::where('Kode','=',$id)->get();
+        $data = array('success' => false, 'message' => '', 'data' => array());
+
+        try {
+            $model = PembelianHeader::where('NoTransaksi','=',$id);
+
+            if ($model) {
+                // $model->Kode = $request->input('Kode');
+             //    $model->Nama = $request->input('Nama');
+                $update = DB::table('pembelianheader')
+                            ->where('NoTransaksi','=', $id)
+                            ->where('RecordOwnerID','=',Auth::user()->RecordOwnerID)
+                            ->update([
+                                'StatusTRX' =>'N'
+                            ]);
+
+                if ($update) {
+                    alert()->success('Success','Data Berhasil di Cancel.');
+                    return redirect('pembelian');
+                }else{
+                    throw new \Exception('Edit Karyawan Gagal');
+                }
+            } else{
+                throw new \Exception('Karyawan not found.');
+            }
+        } catch (Exception $e) {
+            Log::debug($e->getMessage());
+
+            alert()->error('Error',$e->getMessage());
+            return redirect('pembelian');
+        }
     }
 }

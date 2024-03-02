@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use DB;
 use Log;
@@ -63,6 +64,7 @@ class LoginController extends Controller
                         ->Join("users","userrole.userid","=","users.id")
                         ->where("users.email","=",Auth::user()->email)
                         ->where("permission.MenuSubMenu","=",$item->id)
+                        ->where("permission.Status","=","1")
                         ->orderBy("permission.Order","asc")
                         ->get();
 
@@ -188,5 +190,43 @@ class LoginController extends Controller
             // Handle the error as needed
             return response()->json(['error' => $errorMessage], $statusCode);
         }
+    }
+
+    public function register($password)
+    {
+        $pass = Hash::make($password);
+        echo $pass;
+        // $data = array('data'=>false, 'message'=>'', 'data'=>array());
+        // Log::debug($request->all());
+        // try {
+        //     $this->validate($request, [
+        //         'email'=>'required',
+        //         'name'=>'required',
+        //         'password'=>'required',
+        //     ]);
+            
+        //     $str = Str::random(100);
+
+        //     $model = new User;
+        //     $model->email = $request->input('email');
+        //     $model->name = $request->input('name');
+        //     $model->password = Hash::make($request->input('password'));
+        //     $model->RecordOwnerID = $request->input('RecordOwnerID');
+        //     $save = $model->save();
+
+        //     if ($save) {
+        //         $data['success'] = true;
+        //     }else{
+        //         $data['message'] = 'Registrasi Gagal';
+        //     }
+        // } catch (\Exception $e) {
+        //     Log::debug($e->getMessage());
+
+        //     // alert()->error('Error',$e->getMessage());
+        //     // return redirect()->back();
+        //     $data['message'] = $e->getMessage();
+            
+        // }  
+        // return response()->json($data);
     }
 }
