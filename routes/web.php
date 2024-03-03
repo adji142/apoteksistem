@@ -18,6 +18,8 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PenjualanController;
+use App\Http\Controllers\AkunKasController;
+use App\Http\Controllers\TransaksiKasController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -216,3 +218,27 @@ Route::get('/penjualan/form/{id}', [PenjualanController::class,'Penjualan_Form']
 Route::post('/penjualan/store', [PenjualanController::class, 'store'])->name('penjualan-store')->middleware('auth');
 Route::delete('/penjualan/cancel/{id}', [PenjualanController::class,'CancelDocument'])->name('penjualan-cancel')->middleware('auth'); 	
 Route::post('/penjualan/bayar', [PenjualanController::class, 'Bayar'])->name('penjualan-bayar')->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| Kelompok Akun
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/akunkas', [AkunKasController::class,'AkunKasView'])->name('akunkas')->middleware('auth');
+Route::get('/akunkas/form/{id}', [AkunKasController::class,'AkunKas_Form'])->name('akunkas-form')->middleware('auth');
+Route::post('/akunkas/store', [AkunKasController::class, 'store'])->name('akunkas-store')->middleware('auth');
+Route::post('/akunkas/edit', [AkunKasController::class, 'edit'])->name('akunkas-edit')->middleware('auth');
+Route::delete('/akunkas/delete/{id}', [AkunKasController::class, 'akunkas_delete'])->name('akunkas-delete')->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| Transaksi Kas
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/transaksikas', [TransaksiKasController::class,'TransaksiKasView'])->name('transaksikas')->middleware('auth');
+Route::get('/transaksikas/form/{id}', [TransaksiKasController::class,'TransaksiKas_Form'])->name('transaksikas-form')->middleware('auth');
+Route::post('/transaksikas/store', [TransaksiKasController::class, 'store'])->name('transaksikas-store')->middleware('auth');
+Route::post('/transaksikas/edit', [TransaksiKasController::class, 'edit'])->name('transaksikas-edit')->middleware('auth');
+Route::delete('/transaksikas/delete/{id}', [TransaksiKasController::class, 'TransaksiKas_delete'])->name('transaksikas-delete')->middleware('auth');
