@@ -147,7 +147,6 @@ class DataObatController extends Controller
     public function obatLookup(Request $request)
     {
         $data = array('success'=>true, 'message'=>'', 'data'=>array());
-
         $sql = "databarang.KodeItem, ".
                 "databarang.NamaItem, ".
                 "kategoriobat.Nama      AS 'Kelompok', ".
@@ -204,6 +203,51 @@ class DataObatController extends Controller
                     ->whereRaw("CONCAT(databarang.KodeItem,' ', databarang.NamaItem, ' ', batchnumber.BatchNumber) like '%".$Kriteria."%'" )
                     ->groupBy('batchnumber.BatchNumber', 'batchnumber.ExpiredDate', 'databarang.KodeItem', 'databarang.NamaItem','databarang.HargaJual','databarang.KodeSatuan');
         $data['data'] = $dataBatch->get();
+        return response()->json($data);
+    }
+
+    public function listObat(Request $request)
+    {
+        $data = array('success'=>true, 'message'=>'', 'data'=>array());
+
+        $sql = "databarang.KodeItem, ".
+                "databarang.NamaItem, ".
+                "kategoriobat.Nama      AS 'Kelompok', ".
+                "stk.Stock, ".
+                "databarang.KodeSatuan, ".
+                "satuan.Nama            AS 'Satuan', ".
+                "databarang.HargaJual, ".
+                "lokasi.Nama            AS LokasiRak, ".
+                "COALESCE(databarang.HargaPokok,0) LastPrice";
+
+        $dataobat = DataObat::selectRaw($sql)
+                    ->leftJoin('kategoriobat', function ($value){
+                        $value->on('databarang.KodeKelompok','=','kategoriobat.id')
+                                ->on('databarang.RecordOwnerID','=','kategoriobat.RecordOwnerID');
+                    })
+                    ->leftJoin('satuan', function ($value){
+                        $value->on('databarang.KodeSatuan','=','satuan.Kode')
+                                ->on('databarang.RecordOwnerID','=','satuan.RecordOwnerID');
+                    })
+                    ->leftJoin('lokasi', function ($value){
+                        $value->on('databarang.LokasiRakObat','=','lokasi.Kode')
+                                ->on('databarang.RecordOwnerID','=','lokasi.RecordOwnerID');
+                    })
+                    ->leftJoinSub(
+                        DB::table('itemwarehouse')
+                            ->select('itemwarehouse.KodeItem','itemwarehouse.RecordOwnerID', DB::raw('SUM(Qty) as Stock'))
+                            ->groupBy('itemwarehouse.KodeItem','itemwarehouse.RecordOwnerID'),
+                        'stk',
+                        function ($value){
+                            $value->on('stk.KodeItem','=','databarang.KodeItem')
+                                    ->on('stk.RecordOwnerID','=','databarang.RecordOwnerID');
+                    })
+                    ->where('databarang.RecordOwnerID','=',Auth::user()->RecordOwnerID)
+                    ->where('databarang.Active','=','Y');
+        if ($request->input('Stock') == "0") {
+            $dataobat->where('stk.Stock', '>',0);
+        }
+        $data['data'] = $dataobat->get();
         return response()->json($data);
     }
 

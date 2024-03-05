@@ -20,6 +20,7 @@ use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\AkunKasController;
 use App\Http\Controllers\TransaksiKasController;
+use App\Http\Controllers\ReportController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -159,6 +160,7 @@ Route::delete('/dataobat/delete/{id}', [DataObatController::class, 'DataObat_del
 Route::post('/dataobat/obatLookup', [DataObatController::class, 'obatLookup'])->name('obatLookup')->middleware('auth');
 Route::post('/dataobat/batchLookup', [DataObatController::class, 'lookupBatch'])->name('batchLookup')->middleware('auth');
 Route::post('/dataobat/getstockcard', [DataObatController::class, 'StockCard'])->name('getstockcard')->middleware('auth');
+Route::post('/dataobat/listobat', [DataObatController::class, 'listObat'])->name('listobat')->middleware('auth');
 
 /*
 |--------------------------------------------------------------------------
@@ -242,3 +244,16 @@ Route::get('/transaksikas/form/{id}', [TransaksiKasController::class,'TransaksiK
 Route::post('/transaksikas/store', [TransaksiKasController::class, 'store'])->name('transaksikas-store')->middleware('auth');
 Route::post('/transaksikas/edit', [TransaksiKasController::class, 'edit'])->name('transaksikas-edit')->middleware('auth');
 Route::delete('/transaksikas/delete/{id}', [TransaksiKasController::class, 'TransaksiKas_delete'])->name('transaksikas-delete')->middleware('auth');
+Route::post('/transaksikas/readreport', [TransaksiKasController::class, 'ReportKas'])->name('reportkas')->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| Laporan
+|--------------------------------------------------------------------------
+|
+*/
+Route::get('/report/kartustock', [ReportController::class,'KartuStockView'])->name('rptkartustock')->middleware('auth');
+Route::get('/report/saldostock', [ReportController::class,'SaldoStockView'])->name('rptsaldostock')->middleware('auth');
+Route::get('/report/penjualan', [ReportController::class,'LaporanPenjualanView'])->name('rptpenjualan')->middleware('auth');
+Route::get('/report/pembelian', [ReportController::class,'LaporanPembalianView'])->name('rptpembelian')->middleware('auth');
+Route::get('/report/kas', [ReportController::class,'LaporanKasView'])->name('rptkas')->middleware('auth');

@@ -112,9 +112,10 @@ class PembelianController extends Controller
         $TglAkhir = $request->input('TglAkhir');
         $Supplier = $request->input('Supplier');
         $KodeItem = $request->input('KodeItem');
+        $StatusHutang = $request->input('StatusHutang');
         $RecordOwnerID = Auth::user()->RecordOwnerID;
 
-        $sql ="pembelianheader.NoTransaksi, pembelianheader.TglTransaksi, pembelianheader.TglJatuhTempo, supplier.NamaSupplier, pembelianheader.NoRef, CASE WHEN pembelianheader.StatusTRX = 'O' THEN 'OPEN' ELSE CASE WHEN pembelianheader.StatusTRX ='C' THEN 'CLOSE' ELSE CASE WHEN pembelianheader.StatusTRX = 'N' THEN 'CANCEL' ELSE '' END END END AS StatusTRX, pembelianheader.DocTotal, CASE WHEN pembelianheader.DocTotal <= COALESCE(stk.Total,0) THEN 'LUNAS' ELSE 'BELUM LUNAS' END AS StatusBayar, pembelianheader.DocTotal, COALESCE(stk.Total,0) as Pembayaran ";
+        $sql ="pembelianheader.NoTransaksi, pembelianheader.TglTransaksi, pembelianheader.TglJatuhTempo, supplier.NamaSupplier, pembelianheader.NoRef, CASE WHEN pembelianheader.StatusTRX = 'O' THEN 'OPEN' ELSE CASE WHEN pembelianheader.StatusTRX ='C' THEN 'CLOSE' ELSE CASE WHEN pembelianheader.StatusTRX = 'N' THEN 'CANCEL' ELSE '' END END END AS StatusTRX, pembelianheader.DocTotal, CASE WHEN pembelianheader.DocTotal <= COALESCE(stk.Total,0) THEN 'LUNAS' ELSE 'BELUM LUNAS' END AS StatusBayar, pembelianheader.DocTotal, COALESCE(stk.Total,0) as Pembayaran,pembeliandetail.Qty, pembeliandetail.Harga, pembeliandetail.Potongan,pembeliandetail.LineTotal,pembeliandetail.KodeItem, databarang.NamaItem ";
         $header = PembelianHeader::selectRaw($sql)
                     ->leftJoin('supplier', function ($value)
                     {
@@ -140,6 +141,11 @@ class PembelianController extends Controller
                         $value->on('pembeliandetail.NoTransaksi','=','pembelianheader.NoTransaksi')
                         ->on('pembeliandetail.RecordOwnerID','=','pembelianheader.RecordOwnerID');
                     })
+                    ->leftJoin('databarang', function ($value)
+                    {
+                        $value->on('databarang.KodeItem','=','pembeliandetail.KodeItem')
+                        ->on('databarang.RecordOwnerID','=','pembeliandetail.RecordOwnerID');
+                    })
                     ->whereBetween('TglTransaksi',[$TglAwal, $TglAkhir])
                     ->where('pembelianheader.RecordOwnerID','=', Auth::user()->RecordOwnerID);
 
@@ -148,6 +154,9 @@ class PembelianController extends Controller
         }
         if ($KodeItem != "") {
             $header->where('pembeliandetail.KodeItem','=', $KodeItem);
+        }
+        if ($StatusHutang != "") {
+            $header->where(DB::raw("CASE WHEN pembelianheader.DocTotal <= COALESCE(stk.Total,0) THEN 'LUNAS' ELSE 'BELUM LUNAS' END"),"=", $StatusHutang);
         }
         $header->orderBy('pembelianheader.TglTransaksi', 'DESC');
 

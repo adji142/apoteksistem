@@ -172,4 +172,16 @@ class TransaksiKasController extends Controller
         }
         return redirect('transaksikas');
     }
+
+    public function ReportKas(Request $request)
+    {
+        $data = array('success'=>true, 'message'=>'', 'data'=>array());
+
+        $query = DB::select('CALL rsp_laporan_kartu_kas(?,?,?)', array($request->input('TglAwal'), $request->input('TglAkhir'), Auth::user()->RecordOwnerID ));
+
+        $data['success'] = true;
+        $data['data'] = $query;
+
+        return response()->json($data);
+    }
 }
